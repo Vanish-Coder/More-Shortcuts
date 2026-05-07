@@ -11,7 +11,7 @@ Mac Sh.   Windows Sh.       Description
 
 ### How to set up the shortcuts?
 
-Chrome reserves some shortcuts at the OS level, so extensions can't claim it automatically. Also, you have to set all shortcuts manually in 1.0.
+Chrome reserves some shortcuts at the OS level, so extensions can't claim it automatically. Also, you have to set all shortcuts manually as of now.
 
 ## Installation
 1. Clone or download this repo.
