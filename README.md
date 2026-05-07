@@ -15,7 +15,7 @@ Chrome reserves some shortcuts at the OS level, so extensions can't claim it aut
 
 ## Installation
 1. Clone or download this repo.
-2. Open Chrome and go to [extensions](chrome://extensions).
+2. Open Chrome and go to hrome://extensions.
 3. Enable **Developer mode** (top right toggle).
 4. Click **Load unpacked** and select the correct folder.
 
