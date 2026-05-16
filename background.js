@@ -4,7 +4,8 @@ const DEFAULT_STATE = {
   shortcuts: {
     "collapse-group-pause-media": true,
     "new-tab-in-group": true,
-    "random-site": true
+    "random-site": true,
+    "unmute-tab": true
   },
   randomSites: [
     "https://news.ycombinator.com",
@@ -41,6 +42,8 @@ chrome.commands.onCommand.addListener(async (command) => {
     await handleNewTabInGroup();
   } else if (command === "random-site") {
     await handleRandomSite(randomSites);
+  } else if (command === "unmute-tab") {
+    await handleUnmuteTab();
   }
 });
 
@@ -132,7 +135,18 @@ async function handleRandomSite(sites) {
   await chrome.tabs.create({ url, active: true });
 }
 
-// ── Pause/mute a tab — returns true if we muted it (so we can unmute later)
+// ── Shortcut 4: Unmute current tab ────────────────────────────────────────
+async function handleUnmuteTab() {
+  const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!activeTab) return;
+  await chrome.tabs.update(activeTab.id, { muted: false });
+
+  // Also clear it from our muted tracking in case it's in there
+  for (const groupId of Object.keys(mutedTabsByGroup)) {
+    mutedTabsByGroup[groupId] = mutedTabsByGroup[groupId].filter(id => id !== activeTab.id);
+    if (mutedTabsByGroup[groupId].length === 0) delete mutedTabsByGroup[groupId];
+  }
+}
 async function pauseTabMedia(tab) {
   const isYouTube = tab.url && tab.url.includes("youtube.com");
 
