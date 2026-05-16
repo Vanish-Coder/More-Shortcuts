@@ -58,8 +58,30 @@ async function handleCollapseAndPause() {
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: () => {
-          // Strategy 1: fire MediaPause keyboard events — works on Spotify,
-          // Twitch, SoundCloud and any player that listens to media keys
+          // Strategy 1: trigger the site's own Media Session pause handler —
+          // this is exactly what Chrome's media hub does. Works on any player
+          // that registers with the Media Session API (vibeplayer, Spotify, etc.)
+          if (navigator.mediaSession) {
+            try {
+              // Directly invoke the registered pause action handler
+              const pauseHandler = navigator.mediaSession._actionHandlers?.get?.("pause")
+                ?? navigator.mediaSession._handlers?.pause;
+              if (pauseHandler) {
+                pauseHandler();
+              } else {
+                // Fallback: set playbackState which some players watch
+                navigator.mediaSession.playbackState = "paused";
+              }
+            } catch (e) { /* ignore */ }
+          }
+
+          // Strategy 2: direct .pause() on every <video>/<audio> element
+          document.querySelectorAll("video, audio").forEach(el => {
+            if (!el.paused) el.pause();
+          });
+
+          // Strategy 3: fire media key events — works on players that listen
+          // to keyboard media keys (Twitch, SoundCloud, etc.)
           const fireMediaKey = (key) => {
             const opts = { key, code: key, bubbles: true, cancelable: true };
             document.dispatchEvent(new KeyboardEvent("keydown", opts));
@@ -68,14 +90,7 @@ async function handleCollapseAndPause() {
           fireMediaKey("MediaPlayPause");
           fireMediaKey("MediaPause");
 
-          // Strategy 2: direct .pause() on every <video>/<audio> element
-          // catches inline players that don't listen to media keys
-          document.querySelectorAll("video, audio").forEach(el => {
-            if (!el.paused) el.pause();
-          });
-
-          // Strategy 3: click any visible pause button the player exposes
-          // covers custom players that only respond to button clicks
+          // Strategy 4: click visible pause buttons as a last resort
           const pauseSelectors = [
             '[aria-label*="Pause" i]',
             '[title*="Pause" i]',
