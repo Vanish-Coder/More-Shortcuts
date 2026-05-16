@@ -6,8 +6,11 @@ A Chrome extension that adds keyboard shortcuts Chrome doesn't have by default.
 
 ## Shortcuts
 Mac Sh.   Windows Sh.      ‎ ‎ ‎ ‎ Description
+
 | `⌘⇧H` | `Ctrl+Shift+H` | Collapse the active tab's group + pause any playing media.|
+
 | `⌘⇧G` | `Ctrl+Shift+G` | Open a new tab and place it in its own new group.|
+
 | `⌘⇧Y` | `Ctrl+Shift+Y` | Open a random site from your custom list.|
 
 ### Do I need to manually set up the shortcuts?
