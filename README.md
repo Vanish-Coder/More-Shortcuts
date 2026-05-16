@@ -21,7 +21,7 @@ Yes. Chrome reserves some shortcuts at the OS level, so extensions can't claim i
 2. Open Chrome and go to chrome://extensions.
 3. Enable **Developer mode** (top right toggle).
 4. Click **Load unpacked** and select the correct folder.
-5. 
+
 ## Popup
 Click the extension icon to open the popup. From there you can:
 - Toggle each shortcut on or off.
