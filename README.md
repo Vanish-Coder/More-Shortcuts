@@ -25,3 +25,5 @@ Click the extension icon to open the popup. From there you can:
 Please give suggestions for new shortcuts and feedback [here](https://forms.gle/BXF48F1YV23LWoGZ6). 
 ## License
 This software is licensed under [GNU GPL-3.0](https://en.wikipedia.org/wiki/GNU_General_Public_License#Version_3).
+## How to regain certain shortcuts back?
+If you use a shortcut that is taken by Chrome's defaults for this extension and wish to regain their previous functionality, just remove them (by pressing on the 'x' button next to the specific shortcut) from here: chrome://extensions/shortcuts.
