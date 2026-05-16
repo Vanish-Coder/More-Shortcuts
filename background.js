@@ -54,58 +54,7 @@ async function handleCollapseAndPause() {
     : [activeTab];
 
   for (const tab of tabsToPause) {
-    try {
-      await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: () => {
-          // Strategy 1: trigger the site's own Media Session pause handler —
-          // this is exactly what Chrome's media hub does. Works on any player
-          // that registers with the Media Session API (vibeplayer, Spotify, etc.)
-          if (navigator.mediaSession) {
-            try {
-              // Directly invoke the registered pause action handler
-              const pauseHandler = navigator.mediaSession._actionHandlers?.get?.("pause")
-                ?? navigator.mediaSession._handlers?.pause;
-              if (pauseHandler) {
-                pauseHandler();
-              } else {
-                // Fallback: set playbackState which some players watch
-                navigator.mediaSession.playbackState = "paused";
-              }
-            } catch (e) { /* ignore */ }
-          }
-
-          // Strategy 2: direct .pause() on every <video>/<audio> element
-          document.querySelectorAll("video, audio").forEach(el => {
-            if (!el.paused) el.pause();
-          });
-
-          // Strategy 3: fire media key events — works on players that listen
-          // to keyboard media keys (Twitch, SoundCloud, etc.)
-          const fireMediaKey = (key) => {
-            const opts = { key, code: key, bubbles: true, cancelable: true };
-            document.dispatchEvent(new KeyboardEvent("keydown", opts));
-            document.dispatchEvent(new KeyboardEvent("keyup",   opts));
-          };
-          fireMediaKey("MediaPlayPause");
-          fireMediaKey("MediaPause");
-
-          // Strategy 4: click visible pause buttons as a last resort
-          const pauseSelectors = [
-            '[aria-label*="Pause" i]',
-            '[title*="Pause" i]',
-            '[data-testid*="pause" i]',
-            '.ytp-play-button[aria-label*="Pause" i]',
-            'button.pause',
-            'button[class*="pause" i]',
-          ];
-          for (const sel of pauseSelectors) {
-            const btn = document.querySelector(sel);
-            if (btn) { btn.click(); break; }
-          }
-        }
-      });
-    } catch (e) { /* tab may not allow scripting (chrome:// pages etc.) */ }
+    await pauseTabMedia(tab.id);
   }
 
   if (!inGroup) return; // nothing to collapse, we're done
@@ -158,4 +107,22 @@ async function handleRandomSite(sites) {
   if (!sites || sites.length === 0) return;
   const url = sites[Math.floor(Math.random() * sites.length)];
   await chrome.tabs.create({ url, active: true });
+}
+
+// ── Pause media on a tab — pause YouTube, mute everything else ────────────
+async function pauseTabMedia(tabId) {
+  const tab = await chrome.tabs.get(tabId);
+  const isYouTube = tab.url && tab.url.includes("youtube.com");
+
+  if (isYouTube) {
+    // YouTube has a real <video> element — pause it directly
+    try {
+      await chrome.tabs.sendMessage(tabId, { type: "PAUSE_MEDIA" });
+    } catch (e) { /* ignore */ }
+  } else {
+    // Everything else: mute at browser level (works universally)
+    try {
+      await chrome.tabs.update(tabId, { muted: true });
+    } catch (e) { /* ignore */ }
+  }
 }

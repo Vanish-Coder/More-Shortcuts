@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "More Shortcuts",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Adds powerful keyboard shortcuts to Chrome that don't exist by default.",
   "permissions": [
     "tabs",
@@ -12,6 +12,14 @@
   ],
   "host_permissions": [
     "<all_urls>"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
   ],
   "background": {
     "service_worker": "background.js"
