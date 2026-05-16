@@ -49,28 +49,48 @@ async function handleCollapseAndPause() {
   const groupId = activeTab.groupId;
   const inGroup = groupId && groupId !== chrome.tabGroups.TAB_GROUP_ID_NONE;
 
-  if (inGroup) {
-    const groupTabs = await chrome.tabs.query({ groupId, windowId: activeTab.windowId });
-    for (const tab of groupTabs) {
-      try {
-        await chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          func: () => {
-            document.querySelectorAll("video, audio").forEach(el => el.pause());
-          }
-        });
-      } catch (e) { /* tab may not allow scripting */ }
-    }
-  } else {
-    // Not in a group — just pause media on active tab
+  const tabsToPause = inGroup
+    ? await chrome.tabs.query({ groupId, windowId: activeTab.windowId })
+    : [activeTab];
+
+  for (const tab of tabsToPause) {
     try {
       await chrome.scripting.executeScript({
-        target: { tabId: activeTab.id },
+        target: { tabId: tab.id },
         func: () => {
-          document.querySelectorAll("video, audio").forEach(el => el.pause());
+          // Strategy 1: fire MediaPause keyboard events — works on Spotify,
+          // Twitch, SoundCloud and any player that listens to media keys
+          const fireMediaKey = (key) => {
+            const opts = { key, code: key, bubbles: true, cancelable: true };
+            document.dispatchEvent(new KeyboardEvent("keydown", opts));
+            document.dispatchEvent(new KeyboardEvent("keyup",   opts));
+          };
+          fireMediaKey("MediaPlayPause");
+          fireMediaKey("MediaPause");
+
+          // Strategy 2: direct .pause() on every <video>/<audio> element
+          // catches inline players that don't listen to media keys
+          document.querySelectorAll("video, audio").forEach(el => {
+            if (!el.paused) el.pause();
+          });
+
+          // Strategy 3: click any visible pause button the player exposes
+          // covers custom players that only respond to button clicks
+          const pauseSelectors = [
+            '[aria-label*="Pause" i]',
+            '[title*="Pause" i]',
+            '[data-testid*="pause" i]',
+            '.ytp-play-button[aria-label*="Pause" i]',
+            'button.pause',
+            'button[class*="pause" i]',
+          ];
+          for (const sel of pauseSelectors) {
+            const btn = document.querySelector(sel);
+            if (btn) { btn.click(); break; }
+          }
         }
       });
-    } catch (e) { /* ignore */ }
+    } catch (e) { /* tab may not allow scripting (chrome:// pages etc.) */ }
   }
 
   if (!inGroup) return; // nothing to collapse, we're done
