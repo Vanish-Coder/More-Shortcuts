@@ -15,7 +15,7 @@ Mac Sh.   Windows Sh.      ‎ ‎ ‎ ‎ Description
 ### Do I need to manually set up the shortcuts?
 Yes. Chrome reserves some shortcuts at the OS level, so extensions can't claim it automatically. Also, you have to set all shortcuts manually as of now.
 ## Installation
-1. Clone or download this repo.
+1. Download the latest release.
 2. Open Chrome and go to chrome://extensions.
 3. Enable **Developer mode** (top right toggle).
 4. Click **Load unpacked** and select the correct folder.
