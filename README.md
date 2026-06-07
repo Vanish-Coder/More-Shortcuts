@@ -1,5 +1,9 @@
 # More Shortcuts
 A Chrome extension that adds keyboard shortcuts Chrome doesn't have by default.
+
+## UPDATE
+More-Shortcuts will likely not be updated anymore as Chrome allows a maximum of 4 new shortcuts for Chrome extensions which was reached in v1.2.5. Improvements and bug fixes will still be pushed.
+
 ## Appearance
 <img width="371" height="600" alt="Screenshot 2026-05-06 at 10 45 33 PM" src="https://github.com/user-attachments/assets/9d7d70c0-80c5-44ab-b7d0-9fb29a955bf5" />
 
