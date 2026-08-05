@@ -16,6 +16,8 @@ Mac Sh.   Windows Sh.      ‎ ‎ ‎ ‎ Description
 
 | `⌘⇧Y` | `Ctrl+Shift+Y` | Open a random site from your custom list.|
 
+| `⌘⇧U` | `Ctrl+Shift+U` | Unmutes the current tab.|
+
 ### Do I need to manually set up the shortcuts?
 Yes. Chrome reserves some shortcuts at the OS level, so extensions can't claim it automatically. Also, you have to set all shortcuts manually as of now.
 ## Installation
